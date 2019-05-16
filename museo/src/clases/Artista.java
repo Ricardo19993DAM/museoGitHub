@@ -5,6 +5,8 @@ public class Artista extends Cliente{
 	private String descripcion;
 	
 	//Contructores 
+	
+	
 	public Artista(String obraPrincipal, String descripcion) {
 		super();
 		this.obraPrincipal = obraPrincipal;
