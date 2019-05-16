@@ -3,13 +3,15 @@ package clases;
 public class Obra {
 	private String codObra;
 	private String titulo;
+	private String imagen;
 	private String codCategoria;
 	
 	//Contructor
-	public Obra(String codObra, String titulo, String codCategoria) {
+	public Obra(String codObra, String titulo, String imagen, String codCategoria) {
 		super();
 		this.codObra = codObra;
 		this.titulo = titulo;
+		this.imagen = imagen;
 		this.codCategoria = codCategoria;
 	}
 	public Obra() {
@@ -35,5 +37,12 @@ public class Obra {
 	public void setCodCategoria(String codCategoria) {
 		this.codCategoria = codCategoria;
 	}
+	public String getImagen() {
+		return imagen;
+	}
+	public void setImagen(String imagen) {
+		this.imagen = imagen;
+	}
+	
 	
 }
