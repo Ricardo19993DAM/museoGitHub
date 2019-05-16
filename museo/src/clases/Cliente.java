@@ -9,6 +9,9 @@ public class Cliente extends Registrado {
 		super();
 		this.nombre = nombre;
 		this.dni = dni;
+		
+		
+		//prueba fvf
 	}
 
 	public Cliente() {
