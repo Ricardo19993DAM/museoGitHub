@@ -2,6 +2,8 @@ package clases;
 
 import java.time.LocalDate;
 
+import control.Manager;
+
 public class Evento {
 	private String codEvento;
 	private int maxClientes;
@@ -61,6 +63,19 @@ public class Evento {
 	}
 	public void setFecha(LocalDate fecha) {
 		this.fecha = fecha;
+	}
+	public String generarCodigo() {
+		Manager manager=new Manager();
+		int resu=0;
+		try {
+			resu=manager.getContEventos();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		resu+=1;
+		return "E-"+resu;
+		
 	}
 	
 }

@@ -35,6 +35,11 @@ public class Cliente extends Registrado {
 	public void setDni(String dni) {
 		this.dni = dni;
 	}
+	public void setDatos(String id, String password, String tipo,String nombre, String dni) {
+		super.setDatos(id, password, tipo);
+		this.nombre = nombre;
+		this.dni = dni;
+	}
 	
 	
 }

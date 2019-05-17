@@ -35,5 +35,10 @@ public class Registrado implements Usuario {
 	public void setTipo(String tipo) {
 		this.tipo = tipo;
 	}
+	public void setDatos(String id, String password, String tipo) {
+		this.id = id;
+		this.password = password;
+		this.tipo = tipo;
+	}
 	
 }
