@@ -5,6 +5,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import clases.Artista;
+import clases.Cliente;
 import clases.Evento;
 import clases.Obra;
 import clases.Registrado;
@@ -37,8 +39,32 @@ public class Manager {
 		DBManager dbManager = new DBManager();	
 		return dbManager.getRegistradoById(identificador);
 	}
+	/*actualizar datos registrado*/
 	
+	//Clientes
+	//Get array clientes
+	public ArrayList <Cliente> getClientes() throws Exception{
+		DBManager dbManager = new DBManager();	
+		return dbManager.getClientes();
+	}
+	/*actualizar datos cliente*/
+	/*get datos by id*/
+	//Artista
+	//Get array artistas
+	public ArrayList <Artista> getArtistas() throws Exception{
+		DBManager dbManager = new DBManager();	
+		return dbManager.getArtistas();
+	}
+	//Get array artistas de un evento
+	public ArrayList <Artista> getArtistasDeEvento(String codEvento) throws Exception{
+		DBManager dbManager = new DBManager();	
+		return dbManager.getArtistasDeEvento(codEvento);
+	}
+	/*actualizar datos artista*/
+	/*get datos by id artista*/
 	//Evento
+	
+				/*dame datos de un! evento*/
 	public ArrayList <Evento> getEventos() throws Exception{
 		DBManager dbManager = new DBManager();
 		ArrayList <Evento> eventos = dbManager.getEventos();

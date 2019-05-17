@@ -2,6 +2,7 @@ package control;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -120,7 +121,7 @@ public class DBManager {
 
 		ArrayList <Artista> artistas = new ArrayList <Artista>();
 		this.openConnection();
-		String select= "select registrado.id id,password, tipo,nombre,dni,obraPrincipa,descripcion from registrado, cliente, artista where registrado.id=cliente.id and cliente.id=artista.id and registrado.id in(select id from artistas)";
+		String select= "select registrado.id id,password, tipo,nombre,dni,obraPrincipal,descripcion from registrado, cliente, artista where registrado.id=cliente.id and cliente.id=artista.id and registrado.id in(select id from artistas)";
 		ResultSet rs = stmt.executeQuery(select);
 		while (rs.next()) {
 			Artista auxC=new Artista();
@@ -131,13 +132,33 @@ public class DBManager {
 		this.closeConnection();		
 		return artistas;
 	}
-	//Get array artistas de un eveneto
+	//Get array artistas de un evento
 	public ArrayList <Artista> getArtistasDeEvento(String codEvento) throws Exception{
 
 		ArrayList <Artista> artistas = new ArrayList <Artista>();
 		this.openConnection();
-		String select= "select registrado.id id,password, tipo,nombre,dni,obraPrincipa,descripcion from registrado, cliente, artista where registrado.id=cliente.id and cliente.id=artista.id and registrado.id in(select id from artistas)";
+		String select= "select registrado.id id,password, tipo,nombre,dni,obraPrincipal,descripcion from registrado, cliente, artista where registrado.id=cliente.id and cliente.id=artista.id and registrado.id in(select id from participa)";
 		ResultSet rs = stmt.executeQuery(select);
+		while (rs.next()) {
+			Artista auxC=new Artista();
+			auxC.setDatos(rs.getString("id"), rs.getString("password"), rs.getString("tipo"), rs.getString("nombre"), rs.getString("dni"),rs.getString("obraPrincipal"),rs.getString("descripcion"));
+			artistas.add(auxC);
+		}
+		rs.close();
+		this.closeConnection();		
+		return artistas;
+	}
+	//Get array artista por nombre
+	public ArrayList <Artista> getArtistasNombre(String nombre) throws Exception{
+
+		ArrayList <Artista> artistas = new ArrayList <Artista>();
+		this.openConnection();
+		//String select= "select registrado.id id,password, tipo,nombre,dni,obraPrincipal,descripcion from registrado, cliente, artista where registrado.id=cliente.id and cliente.id=artista.id and registrado.id in(select id from artistas)";
+		PreparedStatement pstmt= con.prepareStatement("select registrado.id id,password, tipo,nombre,dni,obraPrincipal,descripcion from registrado, cliente, artista where registrado.id=cliente.id and cliente.id=artista.id and registrado.id in(select id from artistas) and lower(nombre)=lower('?')");
+		//ResultSet rs = stmt.executeQuery(select);
+		pstmt.setString(1,nombre);
+		//PROVISIONAL
+		ResultSet rs=pstmt.executeQuery();
 		while (rs.next()) {
 			Artista auxC=new Artista();
 			auxC.setDatos(rs.getString("id"), rs.getString("password"), rs.getString("tipo"), rs.getString("nombre"), rs.getString("dni"),rs.getString("obraPrincipal"),rs.getString("descripcion"));
@@ -215,7 +236,7 @@ public class DBManager {
 		String select= "select * from obra";
 		ResultSet rs = stmt.executeQuery(select);
 		while (rs.next()) {
-			Obra aux=new Obra(rs.getString("codObra"),rs.getString("titulo"), rs.getString("imagen"),rs.getString("codCategoria"));
+			Obra aux=new Obra(rs.getString("codObra"),rs.getString("titulo"), rs.getString("imagen"),rs.getString("codCategoria"),rs.getString("id"));
 			obras.add( aux); // coches.add( rs.getString("matricula"));
 		}
 		rs.close();

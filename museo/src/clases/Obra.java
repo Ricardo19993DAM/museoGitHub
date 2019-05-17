@@ -5,14 +5,16 @@ public class Obra {
 	private String titulo;
 	private String imagen;
 	private String codCategoria;
+	private String id;
 	
 	//Contructor
-	public Obra(String codObra, String titulo, String imagen, String codCategoria) {
+	public Obra(String codObra, String titulo, String imagen, String codCategoria,String id) {
 		super();
 		this.codObra = codObra;
 		this.titulo = titulo;
 		this.imagen = imagen;
 		this.codCategoria = codCategoria;
+		this.id = id;
 	}
 	public Obra() {
 		super();
@@ -43,6 +45,13 @@ public class Obra {
 	public void setImagen(String imagen) {
 		this.imagen = imagen;
 	}
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
+	
 	
 	
 }
