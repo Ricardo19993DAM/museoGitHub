@@ -8,6 +8,7 @@ import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
+import clases.Artista;
 import clases.Cliente;
 import clases.Evento;
 import clases.Obra;
@@ -103,7 +104,7 @@ public class DBManager {
 
 		ArrayList <Cliente> clientes = new ArrayList <Cliente>();
 		this.openConnection();
-		String select= "select registrado.id id,password, tipo,nombre,dni from registrado, cliente where registrado.id in(select id from clientes)";
+		String select= "select registrado.id id,password, tipo,nombre,dni from registrado, cliente where registrado.id=cliente.id and registrado.id in(select id from clientes)";
 		ResultSet rs = stmt.executeQuery(select);
 		while (rs.next()) {
 			Cliente auxC=new Cliente();
@@ -115,9 +116,37 @@ public class DBManager {
 		return clientes;
 	}
 	//Get array artistas
-	
+	public ArrayList <Artista> getArtistas() throws Exception{
+
+		ArrayList <Artista> artistas = new ArrayList <Artista>();
+		this.openConnection();
+		String select= "select registrado.id id,password, tipo,nombre,dni,obraPrincipa,descripcion from registrado, cliente, artista where registrado.id=cliente.id and cliente.id=artista.id and registrado.id in(select id from artistas)";
+		ResultSet rs = stmt.executeQuery(select);
+		while (rs.next()) {
+			Artista auxC=new Artista();
+			auxC.setDatos(rs.getString("id"), rs.getString("password"), rs.getString("tipo"), rs.getString("nombre"), rs.getString("dni"),rs.getString("obraPrincipal"),rs.getString("descripcion"));
+			artistas.add(auxC);
+		}
+		rs.close();
+		this.closeConnection();		
+		return artistas;
+	}
 	//Get array artistas de un eveneto
-	
+	public ArrayList <Artista> getArtistasDeEvento(String codEvento) throws Exception{
+
+		ArrayList <Artista> artistas = new ArrayList <Artista>();
+		this.openConnection();
+		String select= "select registrado.id id,password, tipo,nombre,dni,obraPrincipa,descripcion from registrado, cliente, artista where registrado.id=cliente.id and cliente.id=artista.id and registrado.id in(select id from artistas)";
+		ResultSet rs = stmt.executeQuery(select);
+		while (rs.next()) {
+			Artista auxC=new Artista();
+			auxC.setDatos(rs.getString("id"), rs.getString("password"), rs.getString("tipo"), rs.getString("nombre"), rs.getString("dni"),rs.getString("obraPrincipal"),rs.getString("descripcion"));
+			artistas.add(auxC);
+		}
+		rs.close();
+		this.closeConnection();		
+		return artistas;
+	}
 	
 	
 	//Eventos

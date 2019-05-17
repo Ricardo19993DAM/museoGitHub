@@ -33,6 +33,11 @@ public class Artista extends Cliente{
 	public void setDescripcion(String descripcion) {
 		this.descripcion = descripcion;
 	}
+	public void setDatos(String id, String password, String tipo,String nombre, String dni,String obraPrincipal, String descripcion) {
+		super.setDatos(id, password, tipo, nombre, dni);
+		this.obraPrincipal = obraPrincipal;
+		this.descripcion = descripcion;
+	}	
 	
 	
 	
