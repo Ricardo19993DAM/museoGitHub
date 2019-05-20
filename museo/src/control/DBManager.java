@@ -7,18 +7,22 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 import clases.Artista;
 import clases.Cliente;
+import clases.Entrada;
 import clases.Evento;
+import clases.Favorito;
 import clases.Obra;
+import clases.Participa;
 import clases.Registrado;
 
 public class DBManager {
 	private Connection con;
 	private Statement stmt;
-
+	
 	// Para acceder a la bases de datos
 	private void openConnection() throws Exception {
 		Class.forName("com.mysql.jdbc.Driver");
@@ -31,8 +35,8 @@ public class DBManager {
 		stmt.close();
 		con.close();
 	}
-
-	//Cuentas registradas
+	/*REGISTRADOS*/
+	
 	public ArrayList <Registrado> getRegistros() throws Exception{
 
 		ArrayList <Registrado> registros = new ArrayList <Registrado>();
@@ -47,17 +51,32 @@ public class DBManager {
 		this.closeConnection();		
 		return registros;
 	}
-	public void registrar(String idV,String passwdV,String nombreV, String dniV) throws Exception{
-		
-		this.openConnection();
-		String insert="insert into registrado (id,password,tipo) values('"+idV+"','"+passwdV+"', 'Cliente')";
-		stmt.executeUpdate(insert);
-		insert="insert into cliente (id,nombre,dni) values('"+idV+"','"+nombreV+"','"+dniV+"')";
-		stmt.executeUpdate(insert);
-		//this.clone();
-		this.closeConnection();	
-	}
-	//get Id portero
+
+	
+	
+	//regresar datos de un Registrado con su ID
+		public Registrado getRegistradoById(String identificador) throws Exception{
+			//añadir si existe o no
+			Registrado reg=null;
+			this.openConnection();
+			String select= "select * from registrado where id='"+identificador+'"';
+			ResultSet rs = stmt.executeQuery(select);
+			while (rs.next()) {
+				reg=new Registrado(rs.getString("id"),rs.getString("password"),rs.getString("tipo"));
+			}
+			rs.close();
+			this.closeConnection();		
+			return reg;
+		}
+		public void actualizarRegistroMinimo(String idV,String passwordV,String antiguoId) throws Exception {
+
+			this.openConnection();
+			String update="Update registrado set id='"+idV+"', passwordV='"+passwordV+"' where id='"+antiguoId+"'";
+			stmt.executeUpdate(update);
+			this.closeConnection();	
+		}
+	/*PORTERO*/
+
 	public String getIdPortero() throws Exception{
 
 		String resu="portero";
@@ -72,6 +91,21 @@ public class DBManager {
 		return resu;
 	}
 	
+	public ArrayList<String> getEntradasHoy() throws Exception{
+		ArrayList <String> eventos = new ArrayList <String>();
+		this.openConnection();
+		String select= "select dni,codigo from evento,cliente where evento.id=cliente.id and DATE_FORMAT(fecha, '%Y-%m-%d')='"+LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+		ResultSet rs = stmt.executeQuery(select);
+		while (rs.next()) {
+			String auxEntrada=rs.getString("dni")+" - "+rs.getString("codigo");
+			eventos.add( auxEntrada); // coches.add( rs.getString("matricula"));
+		}
+		rs.close();
+		this.closeConnection();		
+		return eventos;
+		
+	} 
+	/*ADMINISTRADOR*/
 	//get Id administrador
 	public String getIdAdministrador() throws Exception{
 
@@ -86,19 +120,50 @@ public class DBManager {
 		this.closeConnection();		
 		return resu;
 	}
-	//regresar datos de un Registrado con su ID
-	public Registrado getRegistradoById(String identificador) throws Exception{
-
-		Registrado reg=null;
+	/*CLIENTE*/
+	public Cliente geClienteById(String idV) throws Exception {
 		this.openConnection();
-		String select= "select * from registrado where id='"+identificador+'"';
+		String select= "select * from cliente where id='"+idV+"'";
 		ResultSet rs = stmt.executeQuery(select);
+		Cliente auxCliente = null;
 		while (rs.next()) {
-			reg=new Registrado(rs.getString("id"),rs.getString("password"),rs.getString("tipo"));
+			auxCliente=new Cliente(rs.getString("nombre"),rs.getString("dni"));
 		}
 		rs.close();
 		this.closeConnection();		
-		return reg;
+		return auxCliente;
+	}
+	public void registrar(String idV,String passwdV,String nombreV, String dniV) throws Exception{
+		
+		this.openConnection();
+		String insert="insert into registrado (id,password,tipo) values('"+idV+"','"+passwdV+"', 'Cliente')";
+		stmt.executeUpdate(insert);
+		insert="insert into cliente (id,nombre,dni) values('"+idV+"','"+nombreV+"','"+dniV+"')";
+		stmt.executeUpdate(insert);
+		//this.clone();
+		this.closeConnection();	
+	}
+	//Actualizar
+	public void actualizarRegistroCliente(String idV,String passwordV,String nombreV, String dniV,String antiguoId) throws Exception {
+
+		this.openConnection();
+		String update="Update cliente set id='"+idV+"', passwordV='"+passwordV+"', nombre='"+nombreV+"', dni='"+dniV+"' where id='"+antiguoId+"'";
+		stmt.executeUpdate(update);
+		this.closeConnection();	
+	}
+	public void clienteToArtista(String idV,String obraPrincipalV,String descV) throws Exception {
+		this.openConnection();
+		String insert="insert into artista (id,obraPrincipal,descripcion) values('"+idV+"','"+obraPrincipalV+"','"+descV+"')";
+		stmt.executeUpdate(insert);
+		String update="Update registrado set tipo='Artista' where id='"+idV+"'";
+		stmt.executeUpdate(update);
+		this.closeConnection();
+	}
+	public void altaCliente(String idV) throws Exception {
+		this.openConnection();
+		String delete="delete registrado where id='"+idV+"'";
+		stmt.executeUpdate(delete);
+		this.closeConnection();
 	}
 	//Get array clientes
 	public ArrayList <Cliente> getClientes() throws Exception{
@@ -116,6 +181,7 @@ public class DBManager {
 		this.closeConnection();		
 		return clientes;
 	}
+	/*ARTISTA*/
 	//Get array artistas
 	public ArrayList <Artista> getArtistas() throws Exception{
 
@@ -168,9 +234,31 @@ public class DBManager {
 		this.closeConnection();		
 		return artistas;
 	}
+	public void actualizarPerfilArtista(String idV,String descV,String obraPrincipal) throws Exception {
+		this.openConnection();
+		String update="Update artista set descV='"+descV+"' , obraPrincipal='"+obraPrincipal+"'";
+		stmt.executeUpdate(update);
+		this.closeConnection();
+	}
+	public Artista getArtistaById(String idV) throws Exception {
+		this.openConnection();
+		String select= "select * from artista where id='"+idV+"'";
+		ResultSet rs = stmt.executeQuery(select);
+		Artista auxArtista = null;
+		while (rs.next()) {
+			auxArtista=new Artista(rs.getString("obraPrincipal"),rs.getString("descripcion"));
+		}
+		rs.close();
+		this.closeConnection();		
+		return auxArtista;
+	}
+	/*PARTICIPA*/
+	public ArrayList<Participa> getParticipacionesById(String idV) {
+		return null;
+		
+	}
 	
-	
-	//Eventos
+	/*EVENTO*/
 	//DUDA, A LA HORA DE INSERTAR UN DATO DATE SE TIENE QUE TRANSFORMAR TO_DATE O SE PUEDE ENVIAR DIRECTAMENTE LA VARIABLE COMO STA DESDE JAVA?
 	public ArrayList <Evento> getEventos() throws Exception{
 
@@ -228,6 +316,47 @@ public class DBManager {
 		//this.clone();
 		this.closeConnection();	
 	}
+	/*PARTICIPA*/
+	public void setParticipa(String id,String codEvento) throws Exception {
+		String insert="insert into participa (id,codEvento) values ('"+id+"','"+codEvento+"')";
+		this.openConnection();
+		stmt.executeUpdate(insert);
+		this.closeConnection();
+	}
+	/*public ArrayList<Entrada> getMisEntradas(String idV) throws Exception{
+		ArrayList <Entrada> entradas = new ArrayList <Entrada>();
+		this.openConnection();
+		String select= "select * from entrada where id='"+idV+"'";
+		ResultSet rs = stmt.executeQuery(select);
+		while (rs.next()) {
+			Entrada auxEntrada=new Entrada(rs.getString("id"),rs.getString("codEvento"),rs.getString("codigo"));
+			entradas.add( auxEntrada); // coches.add( rs.getString("matricula"));
+		}
+		rs.close();
+		this.closeConnection();		
+		return entradas;
+	}*/
+	/*ENTRADA*/
+	public void comprarEntrada(String idV, String codEventoV,String codigo) throws Exception {
+		String insert="insert into entrada (id,codEvento,codigo) values('"+idV+"','"+codEventoV+"','"+codigo+"')";
+		this.openConnection();
+		stmt.executeUpdate(insert);
+		this.closeConnection();
+	}
+	public ArrayList<Entrada> getMisEntradas(String idV) throws Exception{
+		ArrayList <Entrada> entradas = new ArrayList <Entrada>();
+		this.openConnection();
+		String select= "select * from entrada where id='"+idV+"'";
+		ResultSet rs = stmt.executeQuery(select);
+		while (rs.next()) {
+			Entrada auxEntrada=new Entrada(rs.getString("id"),rs.getString("codEvento"),rs.getString("codigo"));
+			entradas.add( auxEntrada); // coches.add( rs.getString("matricula"));
+		}
+		rs.close();
+		this.closeConnection();		
+		return entradas;
+	}
+	/*OBRA*/
 	//Obra
 	public ArrayList <Obra> getTodasLasObras() throws Exception {
 
@@ -242,5 +371,59 @@ public class DBManager {
 		rs.close();
 		this.closeConnection();		
 		return obras;
+	}
+	public ArrayList <Obra> getTodasLasObrasArtista(String id) throws Exception {
+
+		ArrayList <Obra> obras = new ArrayList <Obra>();
+		this.openConnection();
+		String select= "select * from obra where id='"+id+"'";
+		ResultSet rs = stmt.executeQuery(select);
+		while (rs.next()) {
+			Obra aux=new Obra(rs.getString("codObra"),rs.getString("titulo"), rs.getString("imagen"),rs.getString("codCategoria"),rs.getString("id"));
+			obras.add( aux); // coches.add( rs.getString("matricula"));
+		}
+		rs.close();
+		this.closeConnection();		
+		return obras;
+	}
+	public void setObra(String codObra, String codCategoria,String id, String imagen, String titulo) throws Exception {
+		String insert="insert into obra (codObra,codCategoria,id,imagen,titulo) values('"+codObra+"','"+codCategoria+"','"+id+"','"+imagen+"','"+titulo+"')";
+		this.openConnection();
+		stmt.executeUpdate(insert);
+		this.closeConnection();
+	}
+	/*CATEGORIA*/
+	//existeCategoria
+	public void setCategoria(String categoria) throws Exception {
+		String insert="insert into categoria (codCategoria) values('"+categoria+"')";
+		this.openConnection();
+		stmt.executeUpdate(insert);
+		this.closeConnection();
+	}
+	public void setCategoria(String categoria,String categoriaP) throws Exception {
+		String insert="insert into categoria (codCategoria,codCategoriaProveniente) values('"+categoria+"','"+categoriaP+"')";
+		this.openConnection();
+		stmt.executeUpdate(insert);
+		this.closeConnection();
+	}
+	/*FAVORITO*/
+	public void setFavorito(String idV,String favorito) throws Exception {
+		String insert="insert into favorito (codCliente,codArtista) values('"+idV+"','"+favorito+"')";
+		this.openConnection();
+		stmt.executeUpdate(insert);
+		this.closeConnection();
+	}
+	public ArrayList <Favorito> getMisFavoritos(String idV) throws Exception{
+		ArrayList <Favorito> favoritos = new ArrayList <Favorito>();
+		this.openConnection();
+		String select= "select * from favoritos where idCliente='"+idV+"'";
+		ResultSet rs = stmt.executeQuery(select);
+		while (rs.next()) {
+			Favorito aux=new Favorito(rs.getString("codCliente"),rs.getString("codArtista"));
+			favoritos.add( aux); // coches.add( rs.getString("matricula"));
+		}
+		rs.close();
+		this.closeConnection();		
+		return favoritos;
 	}
 }

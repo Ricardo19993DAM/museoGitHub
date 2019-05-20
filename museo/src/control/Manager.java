@@ -39,7 +39,10 @@ public class Manager {
 		DBManager dbManager = new DBManager();	
 		return dbManager.getRegistradoById(identificador);
 	}
-	/*actualizar datos registrado*/
+	public void actualizarRegistroMinimo(String idV,String passwordV,String antiguoId) throws Exception {
+		DBManager dbManager = new DBManager();
+		dbManager.actualizarRegistroMinimo(idV, passwordV, antiguoId);
+	}
 	
 	//Clientes
 	//Get array clientes
@@ -47,7 +50,7 @@ public class Manager {
 		DBManager dbManager = new DBManager();	
 		return dbManager.getClientes();
 	}
-	/*actualizar datos cliente*/
+	/*actualizar datos cliente*/ //-->>>>>>>>>>>>
 	/*get datos by id*/
 	//Artista
 	//Get array artistas
